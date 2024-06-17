@@ -1,0 +1,61 @@
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+# Sample data
+patients = [
+    {"id": 1, "name": "Bob Smith", "status": "Active"},
+    {"id": 2, "name": "Jane Smith", "status": "Active"},
+    {"id": 3, "name": "Fred Johnson", "status": "Waiting For Assessment"},
+    {"id": 4, "name": "Becky Thompson", "status": "Limited Activity"},
+    {"id": 5, "name": "Jane Seymour", "status": "Returned To Play and Closed"},
+    {"id": 6, "name": "Susan Whaley", "status": "Long Term Injury/Status Unknown - Closed"},
+    {"id": 7, "name": "Jessie Germain", "status": "Returned To Play As Tolerated"},
+]
+
+current_statuses = [
+    {"id": 1, "title": "Active"},
+    {"id": 2, "title": "Waiting For Assessment"},
+    {"id": 3, "title": "Not Cleared"},
+    {"id": 4, "title": "Limited Activity"},
+    {"id": 5, "title": "Returned To Play As Tolerated"},
+    {"id": 6, "title": "Returned To Play and Closed"},
+    {"id": 7, "title": "Long Term Injury/Status Unknown - Closed"},
+]
+
+new_statuses = [
+    {"id": 10, "title": "Unassigned"},
+    {"id": 11, "title": "Assigned to Facility"},
+    {"id": 12, "title": "Admitted"},
+    {"id": 13, "title": "In Rehab"},
+    {"id": 14, "title": "Discharged"},
+]
+
+status_mapping = {}
+
+@app.route('/api/patients', methods=['GET'])
+def get_patients():
+    return jsonify(patients)
+
+@app.route('/api/current-statuses', methods=['GET'])
+def get_current_statuses():
+    return jsonify(current_statuses)
+
+@app.route('/api/new-statuses', methods=['GET'])
+def get_new_statuses():
+    return jsonify(new_statuses)
+
+@app.route('/api/update-statuses', methods=['POST'])
+def update_statuses():
+    global status_mapping
+    status_mapping = request.json.get('mapping', {})
+    updated_patients = []
+    for patient in patients:
+        current_status = patient['status']
+        new_status = status_mapping.get(current_status, "Unassigned")
+        patient['status'] = new_status
+        updated_patients.append(patient)
+    return jsonify(updated_patients)
+
+if __name__ == '__main__':
+    app.run(debug=True)
