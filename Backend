@@ -33,6 +33,7 @@ new_statuses = [
 
 status_mapping = {}
 
+#sends data to frontend
 @app.route('/api/patients', methods=['GET'])
 def get_patients():
     return jsonify(patients)
