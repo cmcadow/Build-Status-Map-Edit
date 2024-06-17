@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
+//Creates variables for the various data types
 function App() {
   const [patients, setPatients] = useState([]);
   const [currentStatuses, setCurrentStatuses] = useState([]);
   const [newStatuses, setNewStatuses] = useState([]);
   const [mapping, setMapping] = useState({});
-  
+
+//Fetches the data
   useEffect(() => {
     fetchPatients();
     fetchCurrentStatuses();
     fetchNewStatuses();
   }, []);
-  
+
+//Next 3 all fetch the individual types of data from the backend
   const fetchPatients = async () => {
     const response = await axios.get('/api/patients');
     setPatients(response.data);
