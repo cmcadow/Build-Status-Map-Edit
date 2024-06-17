@@ -1,0 +1,87 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+function App() {
+  const [patients, setPatients] = useState([]);
+  const [currentStatuses, setCurrentStatuses] = useState([]);
+  const [newStatuses, setNewStatuses] = useState([]);
+  const [mapping, setMapping] = useState({});
+  
+  useEffect(() => {
+    fetchPatients();
+    fetchCurrentStatuses();
+    fetchNewStatuses();
+  }, []);
+  
+  const fetchPatients = async () => {
+    const response = await axios.get('/api/patients');
+    setPatients(response.data);
+  };
+
+  const fetchCurrentStatuses = async () => {
+    const response = await axios.get('/api/current-statuses');
+    setCurrentStatuses(response.data);
+  };
+
+  const fetchNewStatuses = async () => {
+    const response = await axios.get('/api/new-statuses');
+    setNewStatuses(response.data);
+  };
+
+  const handleMappingChange = (currentStatus, newStatus) => {
+    setMapping({ ...mapping, [currentStatus]: newStatus });
+  };
+
+  const handleUpdateStatuses = async () => {
+    const response = await axios.post('/api/update-statuses', { mapping });
+    setPatients(response.data);
+  };
+
+  return (
+    <div>
+      <h1>Patient Status Mapping</h1>
+      <div>
+        <h2>Current Status to New Status Mapping</h2>
+        {currentStatuses.map((status) => (
+          <div key={status.id}>
+            <label>{status.title}</label>
+            <select
+              onChange={(e) => handleMappingChange(status.title, e.target.value)}
+            >
+              <option value="">Select New Status</option>
+              {newStatuses.map((newStatus) => (
+                <option key={newStatus.id} value={newStatus.title}>
+                  {newStatus.title}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+        <button onClick={handleUpdateStatuses}>Update Statuses</button>
+      </div>
+      <div>
+        <h2>Patient Data</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Patient ID</th>
+              <th>Patient Name</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {patients.map((patient) => (
+              <tr key={patient.id}>
+                <td>{patient.id}</td>
+                <td>{patient.name}</td>
+                <td>{patient.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+export default App;
